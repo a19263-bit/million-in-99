@@ -1,0 +1,12 @@
+{
+  "name": "million-in-99",
+  "version": "1.0.0",
+  "description": "Notification App",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "web-push": "^3.6.0",
+    "mongodb": "^6.3.0"
+  }
+}
