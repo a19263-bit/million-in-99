@@ -1,3 +1,4 @@
+// Version 2
 self.addEventListener('push', function(event) {
   // الحارس يستلم الرسالة من الخادم
   const data = event.data.json();
