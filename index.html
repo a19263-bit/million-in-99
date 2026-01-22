@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق المليون</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f0f2f5; }
+        h1 { color: #333; }
+        button { padding: 15px 30px; font-size: 18px; background: #0070f3; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
+    <h1>تذكير المليون (15 و 30)</h1>
+    <p>اضغط لتفعيل التنبيهات حتى لو كنت خارج المتصفح.</p>
+    <button id="notify-btn">تفعيل التنبيهات 🔔</button>
+
+    <script>
+        const publicKey = "BIIvyUEjY--Hhmg8QR5Q5KgfDVgU7Z-vIDZBEMqJ_EePty0Nd_RgKjB_PIZPL8016LjL4w9vtyqFWB3txudHr4k";
+
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+        }
+
+        async function registerSW() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const register = await navigator.serviceWorker.register('/sw.js');
+                    console.log('Service Worker Registered');
+                    return register;
+                } catch (e) {
+                    console.error('SW failed');
+                }
+            }
+        }
+
+        async function subscribe() {
+            const sw = await navigator.serviceWorker.ready;
+            const subscription = await sw.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+            
+            // هنا سنرسل الاشتراك للخادم لاحقاً
+            await fetch('/api/subscribe', {
+                method: 'POST',
+                body: JSON.stringify(subscription),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            alert('تم التفعيل بنجاح! ستصلك التنبيهات يوم 15 و 30.');
+        }
+
+        document.getElementById('notify-btn').addEventListener('click', subscribe);
+        registerSW();
+    </script>
+</body>
+</html>
